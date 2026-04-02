@@ -1,15 +1,17 @@
 import Fastify from 'fastify';
+import envPlugin from './infrastructure/http/plugins/envPlugin.js';
 import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js';
 import { connectMongo } from './infrastructure/persistence/mongo.js';
 
-const app = Fastify({ logger: true })
+const app = Fastify({ logger: true });
 
-await app.register(eventBusPlugin)
+await app.register(envPlugin);
+await app.register(eventBusPlugin);
 
-await connectMongo(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/notify-hub')
+await connectMongo(app.config.MONGODB_URI);
 
 app.get('/health', async () => {
-    return { status: 'ok' }
-})
+  return { status: 'ok' };
+});
 
-await app.listen({ port: Number(process.env.PORT ?? 3000) })
+await app.listen({ port: app.config.PORT });
