@@ -1,30 +1,43 @@
-import Fastify from 'fastify'
-import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js'
-import jwtPlugin from './infrastructure/http/plugins/jwtPlugin.js'
-import authMiddleware from './infrastructure/http/plugins/authMiddleware.js'
-import { authRoutes } from './infrastructure/http/routes/auth.routes.js'
-import { alertRoutes } from './infrastructure/http/routes/alert.routes.js'
-import { connectMongo } from './infrastructure/persistence/mongo.js'
-import { LoggerSubscriber } from './infrastructure/events/subscribers/loggerSubscriber.js'
-import envPlugin from './infrastructure/config/envPlugin.js'
+import Fastify from 'fastify';
+import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js';
+import jwtPlugin from './infrastructure/http/plugins/jwtPlugin.js';
+import authMiddleware from './infrastructure/http/plugins/authMiddleware.js';
+import { authRoutes } from './infrastructure/http/routes/auth.routes.js';
+import { alertRoutes } from './infrastructure/http/routes/alert.routes.js';
+import { wsRoutes, wsManager } from './infrastructure/http/routes/ws.routes.js';
+import { subscriptionRoutes } from './infrastructure/http/routes/subscription.routes.js';
+import { connectMongo } from './infrastructure/persistence/mongo.js';
+import { LoggerSubscriber } from './infrastructure/events/subscribers/loggerSubscriber.js';
+import { EmailSubscriber } from './infrastructure/events/subscribers/emailSubscriber.js';
+import { WebSocketSubscriber } from './infrastructure/events/subscribers/webSocketSubscriber.js';
+import { MongoUserRepository } from './infrastructure/persistence/user/mongoUserRepository.js';
+import { NodemailerEmailSender } from './infrastructure/email/nodemailerEmailSender.js';
+import envPlugin from './infrastructure/config/envPlugin.js';
 
-const app = Fastify({ logger: true })
+const app = Fastify({ logger: true });
 
-await app.register(envPlugin)
-await app.register(eventBusPlugin)
-await app.register(jwtPlugin)
-await app.register(authMiddleware)
+await app.register(envPlugin);
+await app.register(eventBusPlugin);
+await app.register(jwtPlugin);
+await app.register(authMiddleware);
 
-await connectMongo(app.config.MONGODB_URI)
+await connectMongo(app.config.MONGODB_URI);
 
 // Subscribers
-new LoggerSubscriber(app.eventBus).register()
+const userRepo = new MongoUserRepository();
+const emailSender = new NodemailerEmailSender();
+
+new LoggerSubscriber(app.eventBus).register();
+new EmailSubscriber(app.eventBus, userRepo, emailSender).register();
+new WebSocketSubscriber(app.eventBus, userRepo, wsManager).register();
 
 app.get('/health', { config: { public: true } }, async () => {
-  return { status: 'ok' }
-})
+  return { status: 'ok' };
+});
 
-await app.register(authRoutes)
-await app.register(alertRoutes)
+await app.register(authRoutes);
+await app.register(alertRoutes);
+await app.register(wsRoutes);
+await app.register(subscriptionRoutes);
 
-await app.listen({ port: app.config.PORT })
+await app.listen({ port: app.config.PORT });
