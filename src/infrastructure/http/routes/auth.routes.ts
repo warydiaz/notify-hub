@@ -19,7 +19,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   );
   const logoutUseCase = new LogoutUseCase(refreshTokenRepo);
 
-  fastify.post('/auth/register', async (request, reply) => {
+  fastify.post('/auth/register', { config: { public: true } }, async (request, reply) => {
     const { email, password, name } = request.body as {
       email: string;
       password: string;
@@ -29,7 +29,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(user);
   });
 
-  fastify.post('/auth/login', async (request, reply) => {
+  fastify.post('/auth/login', { config: { public: true } }, async (request, reply) => {
     const { email, password } = request.body as {
       email: string;
       password: string;
@@ -38,7 +38,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     return reply.send(result);
   });
 
-  fastify.post('/auth/refresh', async (request, reply) => {
+  fastify.post('/auth/refresh', { config: { public: true } }, async (request, reply) => {
     const { token } = request.body as { token: string };
     const result = await refreshTokenUseCase.execute({ token });
     return reply.send(result);

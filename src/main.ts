@@ -1,22 +1,26 @@
-import Fastify from 'fastify';
-import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js';
-import jwtPlugin from './infrastructure/http/plugins/jwtPlugin.js';
-import { authRoutes } from './infrastructure/http/routes/auth.routes.js';
-import { connectMongo } from './infrastructure/persistence/mongo.js';
-import envPlugin from './infrastructure/config/envPlugin.js';
+import Fastify from 'fastify'
+import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js'
+import jwtPlugin from './infrastructure/http/plugins/jwtPlugin.js'
+import authMiddleware from './infrastructure/http/plugins/authMiddleware.js'
+import { authRoutes } from './infrastructure/http/routes/auth.routes.js'
+import { alertRoutes } from './infrastructure/http/routes/alert.routes.js'
+import { connectMongo } from './infrastructure/persistence/mongo.js'
+import envPlugin from './infrastructure/config/envPlugin.js'
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true })
 
-await app.register(envPlugin);
-await app.register(eventBusPlugin);
-await app.register(jwtPlugin);
+await app.register(envPlugin)
+await app.register(eventBusPlugin)
+await app.register(jwtPlugin)
+await app.register(authMiddleware)
 
-await connectMongo(app.config.MONGODB_URI);
+await connectMongo(app.config.MONGODB_URI)
 
-app.get('/health', async () => {
-  return { status: 'ok' };
-});
+app.get('/health', { config: { public: true } }, async () => {
+  return { status: 'ok' }
+})
 
-await app.register(authRoutes);
+await app.register(authRoutes)
+await app.register(alertRoutes)
 
-await app.listen({ port: app.config.PORT });
+await app.listen({ port: app.config.PORT })
