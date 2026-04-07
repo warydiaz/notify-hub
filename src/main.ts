@@ -5,6 +5,7 @@ import authMiddleware from './infrastructure/http/plugins/authMiddleware.js'
 import { authRoutes } from './infrastructure/http/routes/auth.routes.js'
 import { alertRoutes } from './infrastructure/http/routes/alert.routes.js'
 import { connectMongo } from './infrastructure/persistence/mongo.js'
+import { LoggerSubscriber } from './infrastructure/events/subscribers/loggerSubscriber.js'
 import envPlugin from './infrastructure/config/envPlugin.js'
 
 const app = Fastify({ logger: true })
@@ -15,6 +16,9 @@ await app.register(jwtPlugin)
 await app.register(authMiddleware)
 
 await connectMongo(app.config.MONGODB_URI)
+
+// Subscribers
+new LoggerSubscriber(app.eventBus).register()
 
 app.get('/health', { config: { public: true } }, async () => {
   return { status: 'ok' }
