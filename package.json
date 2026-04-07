@@ -14,12 +14,16 @@
   "type": "module",
   "dependencies": {
     "@fastify/env": "^6.0.0",
+    "@fastify/jwt": "^10.0.0",
     "@fastify/websocket": "^11.2.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.0",
     "fastify": "^5.8.4",
     "fastify-plugin": "^5.1.0",
     "mongoose": "^9.3.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.5.0",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",

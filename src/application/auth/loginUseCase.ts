@@ -1,0 +1,54 @@
+import bcrypt from 'bcrypt';
+import type { UserRepository } from '../../domain/user/userRepository.js';
+import type { RefreshTokenRepository } from '../../domain/auth/refreshTokenRepository.js';
+import type { User } from '../../domain/user/user.js';
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface LoginOutput {
+  accessToken: string;
+  refreshToken: string;
+  user: Omit<User, 'password'>;
+}
+
+export interface TokenGenerator {
+  generateAccessToken(payload: { userId: string; email: string }): string;
+  generateRefreshToken(payload: { userId: string }): string;
+}
+
+export class LoginUseCase {
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly refreshTokenRepo: RefreshTokenRepository,
+    private readonly tokenGenerator: TokenGenerator,
+  ) {}
+
+  async execute(input: LoginInput): Promise<LoginOutput> {
+    const user = await this.userRepo.findByEmail(input.email);
+    if (!user) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    const validPassword = await bcrypt.compare(input.password, user.password);
+    if (!validPassword) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    const accessToken = this.tokenGenerator.generateAccessToken({
+      userId: user.id,
+      email: user.email,
+    });
+
+    const refreshToken = this.tokenGenerator.generateRefreshToken({
+      userId: user.id,
+    });
+
+    await this.refreshTokenRepo.save(user.id, refreshToken);
+
+    const { password: _, ...userWithoutPassword } = user;
+    return { accessToken, refreshToken, user: userWithoutPassword };
+  }
+}
