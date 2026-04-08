@@ -1,9 +1,11 @@
 import type { EventBus } from '../../../domain/events/eventBus.js';
-import { EventLogModel } from '../../persistence/eventLog/eventLogModel.js';
-
+import type { EventLogRepository } from '../../../domain/eventLog/eventLogRepository.js';
 
 export class LoggerSubscriber {
-  constructor(private readonly eventBus: EventBus) {}
+  constructor(
+    private readonly eventBus: EventBus,
+    private readonly eventLogRepo: EventLogRepository,
+  ) {}
 
   register(): void {
     const events = [
@@ -16,7 +18,7 @@ export class LoggerSubscriber {
 
     for (const event of events) {
       this.eventBus.subscribe(event, async (payload) => {
-        await EventLogModel.create({ eventName: event, payload });
+        await this.eventLogRepo.create(event, payload);
       });
     }
   }

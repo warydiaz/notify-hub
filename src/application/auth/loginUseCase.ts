@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
 import type { UserRepository } from '../../domain/user/userRepository.js';
 import type { RefreshTokenRepository } from '../../domain/auth/refreshTokenRepository.js';
+import type { PasswordHasher } from '../../domain/auth/passwordHasher.js';
 import type { User } from '../../domain/user/user.js';
 
 export interface LoginInput {
@@ -16,7 +16,7 @@ export interface LoginOutput {
 
 export interface TokenGenerator {
   generateAccessToken(payload: { userId: string; email: string }): string;
-  generateRefreshToken(payload: { userId: string }): string;
+  generateRefreshToken(payload: { userId: string; email: string }): string;
 }
 
 export class LoginUseCase {
@@ -24,6 +24,7 @@ export class LoginUseCase {
     private readonly userRepo: UserRepository,
     private readonly refreshTokenRepo: RefreshTokenRepository,
     private readonly tokenGenerator: TokenGenerator,
+    private readonly passwordHasher: PasswordHasher,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
@@ -32,7 +33,7 @@ export class LoginUseCase {
       throw new Error('Credenciales inválidas');
     }
 
-    const validPassword = await bcrypt.compare(input.password, user.password);
+    const validPassword = await this.passwordHasher.compare(input.password, user.password);
     if (!validPassword) {
       throw new Error('Credenciales inválidas');
     }
@@ -44,6 +45,7 @@ export class LoginUseCase {
 
     const refreshToken = this.tokenGenerator.generateRefreshToken({
       userId: user.id,
+      email: user.email,
     });
 
     await this.refreshTokenRepo.save(user.id, refreshToken);

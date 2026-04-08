@@ -1,12 +1,7 @@
 import nodemailer from 'nodemailer';
+import type { EmailSender, EmailOptions } from '../../domain/notifications/emailSender.js';
 
-export interface EmailOptions {
-  to: string;
-  subject: string;
-  html: string;
-}
-
-export class NodemailerEmailSender {
+export class NodemailerEmailSender implements EmailSender {
   private transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT ?? 587),

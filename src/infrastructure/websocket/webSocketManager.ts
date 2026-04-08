@@ -1,6 +1,7 @@
 import type { WebSocket } from '@fastify/websocket';
+import type { RealtimeNotifier } from '../../domain/notifications/realtimeNotifier.js';
 
-export class WebSocketManager {
+export class WebSocketManager implements RealtimeNotifier {
   private connections = new Map<string, WebSocket>();
 
   add(userId: string, socket: WebSocket): void {

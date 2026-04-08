@@ -5,7 +5,8 @@ import type { TokenVerifier } from '../../../application/auth/refreshTokenUseCas
 
 declare module 'fastify' {
   interface FastifyInstance {
-    tokenGenerator: TokenGenerator & TokenVerifier;
+    tokenGenerator: TokenGenerator;
+    tokenVerifier: TokenVerifier;
   }
 }
 
@@ -14,7 +15,7 @@ async function jwtPlugin(fastify: FastifyInstance) {
     secret: fastify.config.JWT_SECRET,
   });
 
-  const tokenGenerator: TokenGenerator & TokenVerifier = {
+  const tokenGenerator: TokenGenerator = {
     generateAccessToken(payload) {
       return fastify.jwt.sign(payload, { expiresIn: fastify.config.JWT_EXPIRES_IN });
     },
@@ -24,12 +25,18 @@ async function jwtPlugin(fastify: FastifyInstance) {
         expiresIn: '7d',
       });
     },
+  };
+
+  const tokenVerifier: TokenVerifier = {
     verifyRefreshToken(token) {
-      return fastify.jwt.verify(token, { key: fastify.config.JWT_REFRESH_SECRET });
+      return fastify.jwt.verify<{ userId: string; email: string }>(token, {
+        key: fastify.config.JWT_REFRESH_SECRET,
+      });
     },
   };
 
   fastify.decorate('tokenGenerator', tokenGenerator);
+  fastify.decorate('tokenVerifier', tokenVerifier);
 }
 
 export default fp(jwtPlugin, { name: 'jwt', dependencies: ['env'] });

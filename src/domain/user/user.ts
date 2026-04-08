@@ -1,9 +1,11 @@
+import type { NotificationChannel } from '../notifications/notificationChannel.js';
+
 export interface User {
   id: string;
   email: string;
   password: string;
   name: string;
-  channels: ('email' | 'ws')[];
+  channels: NotificationChannel[];
   createdAt: Date;
 }
 

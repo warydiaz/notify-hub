@@ -1,10 +1,11 @@
 import type { FastifyInstance } from 'fastify'
 import fp from 'fastify-plugin'
+import type { EventBus } from '../../../domain/events/eventBus.js'
 import { TypedEventBus } from '../../events/typedEventBus.js'
 
 declare module 'fastify' {
     interface FastifyInstance {
-        eventBus: TypedEventBus
+        eventBus: EventBus
     }
 }
 

@@ -1,5 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { MongoUserRepository } from '../../persistence/user/mongoUserRepository.js';
+import { GetSubscriptionsUseCase } from '../../../application/subscription/getSubscriptionsUseCase.js';
+import { SubscribeChannelUseCase } from '../../../application/subscription/subscribeChannelUseCase.js';
+import { UnsubscribeChannelUseCase } from '../../../application/subscription/unsubscribeChannelUseCase.js';
 import {
   getSubscriptionsSchema,
   subscribeChannelSchema,
@@ -8,11 +11,17 @@ import {
 
 export async function subscriptionRoutes(fastify: FastifyInstance) {
   const userRepo = new MongoUserRepository();
+  const getSubscriptions = new GetSubscriptionsUseCase(userRepo);
+  const subscribeChannel = new SubscribeChannelUseCase(userRepo, fastify.eventBus);
+  const unsubscribeChannel = new UnsubscribeChannelUseCase(userRepo, fastify.eventBus);
 
   fastify.get('/subscriptions', { schema: getSubscriptionsSchema }, async (request, reply) => {
-    const user = await userRepo.findById(request.userId);
-    if (!user) return reply.status(404).send({ message: 'Usuario no encontrado' });
-    return reply.send({ channels: user.channels });
+    try {
+      const channels = await getSubscriptions.execute(request.userId);
+      return reply.send({ channels });
+    } catch {
+      return reply.status(404).send({ message: 'Usuario no encontrado' });
+    }
   });
 
   fastify.post(
@@ -20,22 +29,12 @@ export async function subscriptionRoutes(fastify: FastifyInstance) {
     { schema: subscribeChannelSchema },
     async (request, reply) => {
       const { channel } = request.params as { channel: 'email' | 'ws' };
-
-      const user = await userRepo.findById(request.userId);
-      if (!user) return reply.status(404).send({ message: 'Usuario no encontrado' });
-
-      if (user.channels.includes(channel)) {
-        return reply.send({ channels: user.channels });
+      try {
+        const channels = await subscribeChannel.execute(request.userId, channel);
+        return reply.status(201).send({ channels });
+      } catch {
+        return reply.status(404).send({ message: 'Usuario no encontrado' });
       }
-
-      const updated = await userRepo.updateChannels(request.userId, [...user.channels, channel]);
-
-      fastify.eventBus.publish('user.subscribed', {
-        userId: request.userId,
-        channel,
-      });
-
-      return reply.status(201).send({ channels: updated.channels });
     },
   );
 
@@ -44,21 +43,12 @@ export async function subscriptionRoutes(fastify: FastifyInstance) {
     { schema: unsubscribeChannelSchema },
     async (request, reply) => {
       const { channel } = request.params as { channel: 'email' | 'ws' };
-
-      const user = await userRepo.findById(request.userId);
-      if (!user) return reply.status(404).send({ message: 'Usuario no encontrado' });
-
-      const updated = await userRepo.updateChannels(
-        request.userId,
-        user.channels.filter((c) => c !== channel),
-      );
-
-      fastify.eventBus.publish('user.unsubscribed', {
-        userId: request.userId,
-        channel,
-      });
-
-      return reply.status(200).send({ channels: updated.channels });
+      try {
+        const channels = await unsubscribeChannel.execute(request.userId, channel);
+        return reply.status(200).send({ channels });
+      } catch {
+        return reply.status(404).send({ message: 'Usuario no encontrado' });
+      }
     },
   );
 }

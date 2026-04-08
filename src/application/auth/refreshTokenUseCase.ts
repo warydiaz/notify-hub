@@ -10,7 +10,7 @@ export interface RefreshTokenOutput {
 }
 
 export interface TokenVerifier {
-  verifyRefreshToken(token: string): { userId: string };
+  verifyRefreshToken(token: string): { userId: string; email: string };
 }
 
 export class RefreshTokenUseCase {
@@ -30,7 +30,7 @@ export class RefreshTokenUseCase {
 
     const accessToken = this.tokenGenerator.generateAccessToken({
       userId: payload.userId,
-      email: '',
+      email: payload.email,
     });
 
     return { accessToken };

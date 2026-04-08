@@ -5,18 +5,20 @@ import { RefreshTokenUseCase } from '../../../application/auth/refreshTokenUseCa
 import { LogoutUseCase } from '../../../application/auth/logoutUseCase.js';
 import { MongoUserRepository } from '../../persistence/user/mongoUserRepository.js';
 import { MongoRefreshTokenRepository } from '../../persistence/auth/mongoRefreshTokenRepository.js';
+import { BcryptPasswordHasher } from '../../auth/bcryptPasswordHasher.js';
 import { registerSchema, loginSchema, refreshSchema, logoutSchema } from '../schemas/auth.schemas.js'
 
 export async function authRoutes(fastify: FastifyInstance) {
   const userRepo = new MongoUserRepository();
   const refreshTokenRepo = new MongoRefreshTokenRepository();
+  const passwordHasher = new BcryptPasswordHasher();
 
-  const registerUseCase = new RegisterUseCase(userRepo);
-  const loginUseCase = new LoginUseCase(userRepo, refreshTokenRepo, fastify.tokenGenerator);
+  const registerUseCase = new RegisterUseCase(userRepo, passwordHasher);
+  const loginUseCase = new LoginUseCase(userRepo, refreshTokenRepo, fastify.tokenGenerator, passwordHasher);
   const refreshTokenUseCase = new RefreshTokenUseCase(
     refreshTokenRepo,
     fastify.tokenGenerator,
-    fastify.tokenGenerator,
+    fastify.tokenVerifier,
   );
   const logoutUseCase = new LogoutUseCase(refreshTokenRepo);
 

@@ -1,8 +1,15 @@
+import type {
+  StatsRepository,
+  AlertsBySeverityResult,
+  NotificationSuccessRateResult,
+  AvgResolutionTimeResult,
+  TopActiveUserResult,
+} from '../../../domain/stats/statsRepository.js';
 import { AlertModel } from '../alert/alertModel.js';
 import { NotificationModel } from '../notification/notificationModel.js';
 
-export class MongoStatsRepository {
-  async alertsBySeverity() {
+export class MongoStatsRepository implements StatsRepository {
+  async alertsBySeverity(): Promise<AlertsBySeverityResult[]> {
     return AlertModel.aggregate([
       { $match: { resolved: false } },
       { $group: { _id: '$severity', count: { $sum: 1 } } },
@@ -10,7 +17,7 @@ export class MongoStatsRepository {
     ]);
   }
 
-  async notificationSuccessRate() {
+  async notificationSuccessRate(): Promise<NotificationSuccessRateResult[]> {
     return NotificationModel.aggregate([
       {
         $group: {
@@ -32,7 +39,7 @@ export class MongoStatsRepository {
     ]);
   }
 
-  async avgResolutionTimePerSeverity() {
+  async avgResolutionTimePerSeverity(): Promise<AvgResolutionTimeResult[]> {
     return AlertModel.aggregate([
       { $match: { resolved: true, resolvedAt: { $ne: null } } },
       {
@@ -58,7 +65,7 @@ export class MongoStatsRepository {
     ]);
   }
 
-  async topActiveUsers() {
+  async topActiveUsers(): Promise<TopActiveUserResult[]> {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 

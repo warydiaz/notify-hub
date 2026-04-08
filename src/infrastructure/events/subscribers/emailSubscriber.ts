@@ -1,13 +1,12 @@
 import type { EventBus } from '../../../domain/events/eventBus.js';
 import type { UserRepository } from '../../../domain/user/userRepository.js';
-import type { NodemailerEmailSender } from '../../email/nodemailerEmailSender.js';
-import { EventLogModel } from '../../persistence/eventLog/eventLogModel.js';
+import type { EmailSender } from '../../../domain/notifications/emailSender.js';
 
 export class EmailSubscriber {
   constructor(
     private readonly eventBus: EventBus,
     private readonly userRepo: UserRepository,
-    private readonly emailSender: NodemailerEmailSender,
+    private readonly emailSender: EmailSender,
   ) {}
 
   register(): void {

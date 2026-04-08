@@ -1,12 +1,12 @@
 import type { EventBus } from '../../../domain/events/eventBus.js';
 import type { UserRepository } from '../../../domain/user/userRepository.js';
-import type { WebSocketManager } from '../../websocket/webSocketManager.js';
+import type { RealtimeNotifier } from '../../../domain/notifications/realtimeNotifier.js';
 
 export class WebSocketSubscriber {
   constructor(
     private readonly eventBus: EventBus,
     private readonly userRepo: UserRepository,
-    private readonly wsManager: WebSocketManager,
+    private readonly wsManager: RealtimeNotifier,
   ) {}
 
   register(): void {
