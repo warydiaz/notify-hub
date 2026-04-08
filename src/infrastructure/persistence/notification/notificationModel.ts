@@ -13,4 +13,8 @@ const notificationSchema = new Schema(
   { timestamps: false },
 );
 
+notificationSchema.index({ userId: 1 });
+notificationSchema.index({ userId: 1, read: 1 });
+notificationSchema.index({ channel: 1, success: 1 });
+
 export const NotificationModel = mongoose.model('Notification', notificationSchema);

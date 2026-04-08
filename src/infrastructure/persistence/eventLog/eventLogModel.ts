@@ -1,11 +1,11 @@
 import mongoose, { Schema } from 'mongoose';
 
-interface EventLogDocument {
+interface IEventLog {
   eventName: string;
   payload: unknown;
 }
 
-const eventLogSchema = new Schema<EventLogDocument>(
+const eventLogSchema = new Schema<IEventLog>(
   {
     eventName: { type: String, required: true },
     payload: { type: Schema.Types.Mixed, required: true },
@@ -13,4 +13,7 @@ const eventLogSchema = new Schema<EventLogDocument>(
   { timestamps: { createdAt: 'createdAt', updatedAt: false } },
 );
 
-export const EventLogModel = mongoose.model<EventLogDocument>('EventLog', eventLogSchema);
+eventLogSchema.index({ eventName: 1 });
+eventLogSchema.index({ createdAt: -1 });
+
+export const EventLogModel = mongoose.model<IEventLog>('EventLog', eventLogSchema);

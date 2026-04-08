@@ -20,4 +20,9 @@ const alertSchema = new Schema<AlertDocument>(
   { timestamps: { createdAt: 'createdAt', updatedAt: false } },
 );
 
+alertSchema.index({ userId: 1 });
+alertSchema.index({ severity: 1 });
+alertSchema.index({ createdAt: -1 });
+alertSchema.index({ resolved: 1, severity: 1 });
+
 export const AlertModel = mongoose.model<AlertDocument>('Alert', alertSchema);
