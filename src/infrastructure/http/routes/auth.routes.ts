@@ -5,6 +5,7 @@ import { RefreshTokenUseCase } from '../../../application/auth/refreshTokenUseCa
 import { LogoutUseCase } from '../../../application/auth/logoutUseCase.js';
 import { MongoUserRepository } from '../../persistence/user/mongoUserRepository.js';
 import { MongoRefreshTokenRepository } from '../../persistence/auth/mongoRefreshTokenRepository.js';
+import { registerSchema, loginSchema, refreshSchema, logoutSchema } from '../schemas/auth.schemas.js'
 
 export async function authRoutes(fastify: FastifyInstance) {
   const userRepo = new MongoUserRepository();
@@ -19,7 +20,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   );
   const logoutUseCase = new LogoutUseCase(refreshTokenRepo);
 
-  fastify.post('/auth/register', { config: { public: true } }, async (request, reply) => {
+  fastify.post('/auth/register', { config: { public: true }, schema: registerSchema }, async (request, reply) => {
     const { email, password, name } = request.body as {
       email: string;
       password: string;
@@ -29,7 +30,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(user);
   });
 
-  fastify.post('/auth/login', { config: { public: true } }, async (request, reply) => {
+  fastify.post('/auth/login', { config: { public: true }, schema: loginSchema }, async (request, reply) => {
     const { email, password } = request.body as {
       email: string;
       password: string;
@@ -38,13 +39,13 @@ export async function authRoutes(fastify: FastifyInstance) {
     return reply.send(result);
   });
 
-  fastify.post('/auth/refresh', { config: { public: true } }, async (request, reply) => {
+  fastify.post('/auth/refresh', { config: { public: true }, schema: refreshSchema }, async (request, reply) => {
     const { token } = request.body as { token: string };
     const result = await refreshTokenUseCase.execute({ token });
     return reply.send(result);
   });
 
-  fastify.post('/auth/logout', async (request, reply) => {
+  fastify.post('/auth/logout', { schema: logoutSchema }, async (request, reply) => {
     const { token } = request.body as { token: string };
     await logoutUseCase.execute(token);
     return reply.status(204).send();

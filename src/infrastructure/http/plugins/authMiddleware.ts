@@ -15,6 +15,7 @@ async function authMiddleware(fastify: FastifyInstance) {
   fastify.addHook('preHandler', async (request, reply) => {
     const routeConfig = request.routeOptions.config as { public?: boolean };
     if (routeConfig.public) return;
+    if (request.url.startsWith('/docs')) return;
 
     try {
       const payload = await request.jwtVerify<{ userId: string; email: string }>();
