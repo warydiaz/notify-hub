@@ -1,4 +1,14 @@
 services:
+  app:
+    build: .
+    container_name: notify-hub-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+
   mongodb:
     image: mongo:7
     container_name: notify-hub-mongo

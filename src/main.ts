@@ -48,4 +48,4 @@ await app.register(createWsRoutes(wsManager));
 await app.register(subscriptionRoutes);
 await app.register(statsRoutes);
 
-await app.listen({ port: app.config.PORT });
+await app.listen({ port: app.config.PORT, host: '0.0.0.0' })
