@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import Fastify from 'fastify';
 import eventBusPlugin from './infrastructure/http/plugins/eventBusPlugin.js';
 import jwtPlugin from './infrastructure/http/plugins/jwtPlugin.js';
@@ -17,10 +18,12 @@ import { MongoEventLogRepository } from './infrastructure/persistence/eventLog/m
 import { NodemailerEmailSender } from './infrastructure/email/nodemailerEmailSender.js';
 import { WebSocketManager } from './infrastructure/websocket/webSocketManager.js';
 import envPlugin from './infrastructure/config/envPlugin.js';
+import schemaErrorFormatterPlugin from './infrastructure/http/plugins/schemaErrorFormatterPlugin.js';
 
 const app = Fastify({ logger: true });
 
 await app.register(envPlugin);
+await app.register(schemaErrorFormatterPlugin);
 await app.register(swaggerPlugin);
 await app.register(eventBusPlugin);
 await app.register(jwtPlugin);
@@ -48,4 +51,4 @@ await app.register(createWsRoutes(wsManager));
 await app.register(subscriptionRoutes);
 await app.register(statsRoutes);
 
-await app.listen({ port: app.config.PORT, host: '0.0.0.0' })
+await app.listen({ port: app.config.PORT, host: '0.0.0.0' });

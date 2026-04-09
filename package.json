@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "debug": "tsx watch --inspect src/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,11 +20,14 @@
     "@fastify/swagger-ui": "^5.2.5",
     "@fastify/websocket": "^11.2.0",
     "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "dotenv": "^17.4.0",
     "fastify": "^5.8.4",
     "fastify-plugin": "^5.1.0",
     "mongoose": "^9.3.3",
-    "nodemailer": "^8.0.4"
+    "nodemailer": "^8.0.4",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

@@ -1,4 +1,6 @@
 import type { FastifyInstance } from 'fastify';
+import { CreateAlertDto } from './dto/create-alert.dto.js';
+import { validateBody, validateQuery } from '../middlewares/validateDto.js';
 import { CreateAlertUseCase } from '../../../application/alert/createAlertUseCase.js';
 import { GetAlertsUseCase } from '../../../application/alert/getAlertsUseCase.js';
 import { GetAlertByIdUseCase } from '../../../application/alert/getAlertByIdUseCase.js';
@@ -12,6 +14,8 @@ import {
   resolveAlertSchema,
   deleteAlertSchema,
 } from '../schemas/alert.schemas.js';
+import { FiltersGetAlertsDto } from './dto/filters-get-alerts.dto.js';
+import { AlertByIdDto } from './dto/alert-by-id.dto.js';
 
 export async function alertRoutes(fastify: FastifyInstance) {
   const alertRepo = new MongoAlertRepository();
@@ -22,54 +26,65 @@ export async function alertRoutes(fastify: FastifyInstance) {
   const resolveAlertUseCase = new ResolveAlertUseCase(alertRepo, fastify.eventBus);
   const deleteAlertUseCase = new DeleteAlertUseCase(alertRepo);
 
-  fastify.post('/alerts', { schema: createAlertSchema }, async (request, reply) => {
-    const { title, message, severity } = request.body as {
-      title: string;
-      message: string;
-      severity: 'low' | 'medium' | 'high';
-    };
-    const alert = await createAlertUseCase.execute({
-      title,
-      message,
-      severity,
-      userId: request.userId,
-    });
-    return reply.status(201).send(alert);
-  });
-
-  fastify.get('/alerts', { schema: getAlertsSchema }, async (request, reply) => {
-    const { severity, resolved, page, limit } = request.query as {
-      severity?: 'low' | 'medium' | 'high';
-      resolved?: string;
-      page?: string;
-      limit?: string;
-    };
-    const result = await getAlertsUseCase.execute(
-      {
+  fastify.post(
+    '/alerts',
+    { schema: createAlertSchema, preHandler: validateBody(CreateAlertDto) },
+    async (request, reply) => {
+      const { title, message, severity } = request.body as CreateAlertDto;
+      const alert = await createAlertUseCase.execute({
+        title,
+        message,
         severity,
-        resolved: resolved !== undefined ? resolved === 'true' : undefined,
-      },
-      page ? Number(page) : 1,
-      limit ? Number(limit) : 10,
-    );
-    return reply.send(result);
-  });
+        userId: request.userId,
+      });
+      return reply.status(201).send(alert);
+    },
+  );
 
-  fastify.get('/alerts/:id', { schema: getAlertByIdSchema }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    const alert = await getAlertByIdUseCase.execute(id);
-    return reply.send(alert);
-  });
+  fastify.get(
+    '/alerts',
+    { schema: getAlertsSchema, preHandler: validateQuery(FiltersGetAlertsDto) },
+    async (request, reply) => {
+      const filters = request.query as FiltersGetAlertsDto;
+      const result = await getAlertsUseCase.execute(
+        {
+          severity: filters.severity,
+          resolved: filters.resolved,
+        },
+        filters.page,
+        filters.limit,
+      );
+      return reply.send(result);
+    },
+  );
 
-  fastify.patch('/alerts/:id/resolve', { schema: resolveAlertSchema }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    const alert = await resolveAlertUseCase.execute(id, request.userId);
-    return reply.send(alert);
-  });
+  fastify.get(
+    '/alerts/:id',
+    { schema: getAlertByIdSchema, preHandler: validateQuery(AlertByIdDto) },
+    async (request, reply) => {
+      const alertDto = request.params as AlertByIdDto;
+      const alert = await getAlertByIdUseCase.execute(alertDto.id);
+      return reply.send(alert);
+    },
+  );
 
-  fastify.delete('/alerts/:id', { schema: deleteAlertSchema }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    await deleteAlertUseCase.execute(id, request.userId);
-    return reply.status(204).send();
-  });
+  fastify.patch(
+    '/alerts/:id/resolve',
+    { schema: resolveAlertSchema, preHandler: validateQuery(AlertByIdDto) },
+    async (request, reply) => {
+      const alertDto = request.params as AlertByIdDto;
+      const alert = await resolveAlertUseCase.execute(alertDto.id, request.userId);
+      return reply.send(alert);
+    },
+  );
+
+  fastify.delete(
+    '/alerts/:id',
+    { schema: deleteAlertSchema, preHandler: validateQuery(AlertByIdDto) },
+    async (request, reply) => {
+      const alertDto = request.params as AlertByIdDto;
+      await deleteAlertUseCase.execute(alertDto.id, request.userId);
+      return reply.status(204).send();
+    },
+  );
 }
