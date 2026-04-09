@@ -6,6 +6,10 @@ declare module 'fastify' {
     userId: string;
     email: string;
   }
+
+  interface FastifyContextConfig {
+    public?: boolean;
+  }
 }
 
 async function authMiddleware(fastify: FastifyInstance) {
@@ -13,8 +17,7 @@ async function authMiddleware(fastify: FastifyInstance) {
   fastify.decorateRequest('email', '');
 
   fastify.addHook('preHandler', async (request, reply) => {
-    const routeConfig = request.routeOptions.config as { public?: boolean };
-    if (routeConfig.public) return;
+    if (request.routeOptions.config.public) return;
     if (request.url.startsWith('/docs')) return;
 
     try {

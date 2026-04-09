@@ -1,5 +1,4 @@
 import type { FastifyInstance } from 'fastify';
-import { CreateAlertDto } from './dto/create-alert.dto.js';
 import { validateBody, validateQuery } from '../middlewares/validateDto.js';
 import { CreateAlertUseCase } from '../../../application/alert/createAlertUseCase.js';
 import { GetAlertsUseCase } from '../../../application/alert/getAlertsUseCase.js';
@@ -14,8 +13,9 @@ import {
   resolveAlertSchema,
   deleteAlertSchema,
 } from '../schemas/alert.schemas.js';
-import { FiltersGetAlertsDto } from './dto/filters-get-alerts.dto.js';
-import { AlertByIdDto } from './dto/alert-by-id.dto.js';
+import { CreateAlertDto } from './dto/alerts/create-alert.dto.js';
+import { FiltersGetAlertsDto } from './dto/alerts/filters-get-alerts.dto.js';
+import { AlertByIdDto } from './dto/alerts/alert-by-id.dto.js';
 
 export async function alertRoutes(fastify: FastifyInstance) {
   const alertRepo = new MongoAlertRepository();
