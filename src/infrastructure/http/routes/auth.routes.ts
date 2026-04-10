@@ -20,7 +20,7 @@ import { TokenDto } from './dto/auth/token.dto.js';
 export async function authRoutes(fastify: FastifyInstance) {
   const userRepo = new MongoUserRepository();
   const refreshTokenRepo = new MongoRefreshTokenRepository();
-  const passwordHasher = new BcryptPasswordHasher();
+  const passwordHasher = new BcryptPasswordHasher(fastify.config.SALT_ROUNDS);
 
   const registerUseCase = new RegisterUseCase(userRepo, passwordHasher);
   const loginUseCase = new LoginUseCase(

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import type { PasswordHasher } from '../../domain/auth/passwordHasher.js';
 
 export class BcryptPasswordHasher implements PasswordHasher {
-  private readonly saltRounds = 10;
+  constructor(private readonly saltRounds: number) {}
 
   hash(plain: string): Promise<string> {
     return bcrypt.hash(plain, this.saltRounds);

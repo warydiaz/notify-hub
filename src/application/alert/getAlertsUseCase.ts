@@ -10,8 +10,8 @@ export class GetAlertsUseCase {
 
   async execute(
     filters: AlertFilters,
-    page: number = 1,
-    limit: number = 10,
+    page: number,
+    limit: number,
   ): Promise<PaginatedResult<Alert>> {
     return this.alertRepo.findAll(filters, page, limit);
   }
