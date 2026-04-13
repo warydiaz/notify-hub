@@ -30,5 +30,26 @@ export class WebSocketSubscriber {
         success,
       });
     });
+
+    this.eventBus.subscribe('alert.resolved', async (payload) => {
+      const users = await this.userRepo.findAllByChannel('ws');
+
+      for (const user of users) {
+        const success = this.wsManager.isConnected(user.id);
+
+        if (success) {
+          this.wsManager.send(user.id, {
+            event: 'alert.resolved',
+            data: payload,
+          });
+        }
+
+        this.eventBus.publish('notification.sent', {
+          notificationId: payload.alertId,
+          channel: 'ws',
+          success,
+        });
+      }
+    });
   }
 }

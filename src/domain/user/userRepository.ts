@@ -6,4 +6,5 @@ export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
   updateChannels(userId: string, channels: NotificationChannel[]): Promise<User>;
+  findAllByChannel(channel: NotificationChannel): Promise<User[]>;
 }

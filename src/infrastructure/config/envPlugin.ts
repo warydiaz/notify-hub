@@ -3,7 +3,19 @@ import type { FastifyInstance } from 'fastify';
 
 const schema = {
   type: 'object',
-  required: ['PORT', 'MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'JWT_EXPIRES_IN', 'SALT_ROUNDS'],
+  required: [
+    'PORT',
+    'MONGODB_URI',
+    'JWT_SECRET',
+    'JWT_REFRESH_SECRET',
+    'JWT_EXPIRES_IN',
+    'SALT_ROUNDS',
+    'SMTP_HOST',
+    'SMTP_PORT',
+    'SMTP_USER',
+    'SMTP_PASS',
+    'EMAIL_FROM',
+  ],
   properties: {
     PORT: { type: 'number' },
     MONGODB_URI: { type: 'string' },
@@ -27,11 +39,11 @@ declare module 'fastify' {
       JWT_SECRET: string;
       JWT_REFRESH_SECRET: string;
       JWT_EXPIRES_IN: string;
-      SMTP_HOST?: string;
-      SMTP_PORT?: number;
-      SMTP_USER?: string;
-      SMTP_PASS?: string;
-      EMAIL_FROM?: string;
+      SMTP_HOST: string;
+      SMTP_PORT: number;
+      SMTP_USER: string;
+      SMTP_PASS: string;
+      EMAIL_FROM: string;
       SALT_ROUNDS: number;
     };
   }

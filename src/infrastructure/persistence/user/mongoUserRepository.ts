@@ -34,4 +34,9 @@ export class MongoUserRepository implements UserRepository {
     if (!doc) throw new Error('Usuario no encontrado');
     return this.toUser(doc);
   }
+
+  async findAllByChannel(channel: 'email' | 'ws'): Promise<User[]> {
+    const docs = await UserModel.find({ channels: channel });
+    return docs.map((doc) => this.toUser(doc));
+  }
 }

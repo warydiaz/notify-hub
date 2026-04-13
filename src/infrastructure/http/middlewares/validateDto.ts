@@ -29,3 +29,10 @@ export function validateQuery<T extends object>(DtoClass: ClassConstructor<T>) {
     if (dto) request.query = dto as Record<string, unknown>;
   };
 }
+
+export function validateParams<T extends object>(DtoClass: ClassConstructor<T>) {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    const dto = await runValidation(DtoClass, request.params, reply);
+    if (dto) request.params = dto as Record<string, unknown>;
+  };
+}

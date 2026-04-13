@@ -15,7 +15,10 @@ import { EmailSubscriber } from './infrastructure/events/subscribers/emailSubscr
 import { WebSocketSubscriber } from './infrastructure/events/subscribers/webSocketSubscriber.js';
 import { MongoUserRepository } from './infrastructure/persistence/user/mongoUserRepository.js';
 import { MongoEventLogRepository } from './infrastructure/persistence/eventLog/mongoEventLogRepository.js';
-import { NodemailerEmailSender } from './infrastructure/email/nodemailerEmailSender.js';
+import {
+  NodemailerEmailSender,
+  NodemailerEmailSenderConfig,
+} from './infrastructure/email/nodemailerEmailSender.js';
 import { WebSocketManager } from './infrastructure/websocket/webSocketManager.js';
 import envPlugin from './infrastructure/config/envPlugin.js';
 import schemaErrorFormatterPlugin from './infrastructure/http/plugins/schemaErrorFormatterPlugin.js';
@@ -33,7 +36,14 @@ await connectMongo(app.config.MONGODB_URI);
 
 // Composition root
 const userRepo = new MongoUserRepository();
-const emailSender = new NodemailerEmailSender();
+const config: NodemailerEmailSenderConfig = {
+  smtpHost: app.config.SMTP_HOST,
+  smtpPort: app.config.SMTP_PORT,
+  smtpUser: app.config.SMTP_USER,
+  smtpPass: app.config.SMTP_PASS,
+  emailFrom: app.config.EMAIL_FROM,
+};
+const emailSender = new NodemailerEmailSender(config);
 const eventLogRepo = new MongoEventLogRepository();
 const wsManager = new WebSocketManager();
 

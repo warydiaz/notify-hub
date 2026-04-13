@@ -1,20 +1,32 @@
 import nodemailer from 'nodemailer';
 import type { EmailSender, EmailOptions } from '../../domain/notifications/emailSender.js';
 
+export interface NodemailerEmailSenderConfig {
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPass: string;
+  emailFrom: string;
+}
+
 export class NodemailerEmailSender implements EmailSender {
-  private transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT ?? 587),
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  private transporter: nodemailer.Transporter;
+
+  constructor(private readonly config: NodemailerEmailSenderConfig) {
+    this.transporter = nodemailer.createTransport({
+      host: this.config.smtpHost!,
+      port: this.config.smtpPort!,
+      auth: {
+        user: this.config.smtpUser!,
+        pass: this.config.smtpPass!,
+      },
+    });
+  }
 
   async send(options: EmailOptions): Promise<boolean> {
     try {
       await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM,
+        from: this.config.emailFrom,
         to: options.to,
         subject: options.subject,
         html: options.html,

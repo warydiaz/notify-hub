@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { validateBody, validateQuery } from '../middlewares/validateDto.js';
+import { validateBody, validateParams, validateQuery } from '../middlewares/validateDto.js';
 import { CreateAlertUseCase } from '../../../application/alert/createAlertUseCase.js';
 import { GetAlertsUseCase } from '../../../application/alert/getAlertsUseCase.js';
 import { GetAlertByIdUseCase } from '../../../application/alert/getAlertByIdUseCase.js';
@@ -60,7 +60,7 @@ export async function alertRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     '/alerts/:id',
-    { schema: getAlertByIdSchema, preHandler: validateQuery(AlertByIdDto) },
+    { schema: getAlertByIdSchema, preHandler: validateParams(AlertByIdDto) },
     async (request, reply) => {
       const alertDto = request.params as AlertByIdDto;
       const alert = await getAlertByIdUseCase.execute(alertDto.id);
@@ -70,7 +70,7 @@ export async function alertRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     '/alerts/:id/resolve',
-    { schema: resolveAlertSchema, preHandler: validateQuery(AlertByIdDto) },
+    { schema: resolveAlertSchema, preHandler: validateParams(AlertByIdDto) },
     async (request, reply) => {
       const alertDto = request.params as AlertByIdDto;
       const alert = await resolveAlertUseCase.execute(alertDto.id, request.userId);
@@ -80,7 +80,7 @@ export async function alertRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     '/alerts/:id',
-    { schema: deleteAlertSchema, preHandler: validateQuery(AlertByIdDto) },
+    { schema: deleteAlertSchema, preHandler: validateParams(AlertByIdDto) },
     async (request, reply) => {
       const alertDto = request.params as AlertByIdDto;
       await deleteAlertUseCase.execute(alertDto.id, request.userId);

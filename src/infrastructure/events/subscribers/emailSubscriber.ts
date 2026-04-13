@@ -27,5 +27,23 @@ export class EmailSubscriber {
         success,
       });
     });
+
+    this.eventBus.subscribe('alert.resolved', async (payload) => {
+      const users = await this.userRepo.findAllByChannel('email');
+
+      for (const user of users) {
+        const success = await this.emailSender.send({
+          to: user.email,
+          subject: `[RESOLVED] Alerta resuelta`,
+          html: `<p>La alerta <strong>${payload.alertId}</strong> ha sido resuelta el ${payload.resolvedAt.toISOString()}.</p>`,
+        });
+
+        this.eventBus.publish('notification.sent', {
+          notificationId: payload.alertId,
+          channel: 'email',
+          success,
+        });
+      }
+    });
   }
 }
