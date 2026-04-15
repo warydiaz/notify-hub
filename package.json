@@ -7,7 +7,11 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
     "start": "node dist/main.js",
-    "debug": "tsx watch --inspect src/main.ts"
+    "debug": "tsx watch --inspect src/main.ts",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch"
   },
   "keywords": [],
   "author": "Ángel Diaz Mendiburu",
@@ -34,6 +38,7 @@
     "@types/node": "^25.5.0",
     "@types/nodemailer": "^8.0.0",
     "prettier": "^3.8.1",
+    "standard-version": "^9.5.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
