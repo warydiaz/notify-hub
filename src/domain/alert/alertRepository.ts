@@ -1,7 +1,7 @@
-import type { Alert, CreateAlertInput } from './alert.js';
+import type { Alert, CreateAlertInput, Severity } from './alert.js';
 
 export interface AlertFilters {
-  severity?: 'low' | 'medium' | 'high';
+  severity?: Severity;
   resolved?: boolean;
   userId?: string;
 }

@@ -51,8 +51,8 @@ export async function alertRoutes(fastify: FastifyInstance) {
           severity: filters.severity,
           resolved: filters.resolved,
         },
-        filters.page,
-        filters.limit,
+        filters.page!,
+        filters.limit!,
       );
       return reply.send(result);
     },

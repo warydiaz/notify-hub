@@ -2,6 +2,7 @@ import type { UserRepository } from '../../domain/user/userRepository.js';
 import type { RefreshTokenRepository } from '../../domain/auth/refreshTokenRepository.js';
 import type { PasswordHasher } from '../../domain/auth/passwordHasher.js';
 import type { User } from '../../domain/user/user.js';
+import { AuthError } from './error/index.js';
 
 export interface LoginInput {
   email: string;
@@ -30,12 +31,12 @@ export class LoginUseCase {
   async execute(input: LoginInput): Promise<LoginOutput> {
     const user = await this.userRepo.findByEmail(input.email);
     if (!user) {
-      throw new Error('Credenciales inválidas');
+      throw AuthError.InvalidCredentials();
     }
 
     const validPassword = await this.passwordHasher.compare(input.password, user.password);
     if (!validPassword) {
-      throw new Error('Credenciales inválidas');
+      throw AuthError.InvalidCredentials();
     }
 
     const accessToken = this.tokenGenerator.generateAccessToken({

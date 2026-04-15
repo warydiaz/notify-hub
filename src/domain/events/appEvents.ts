@@ -1,4 +1,4 @@
-import type { NotificationChannel } from '../notifications/notificationChannel.js';
+import type { Channel } from '../notifications/notificationChannel.js';
 
 export type AppEvents = {
   'alert.created': {
@@ -14,15 +14,15 @@ export type AppEvents = {
   }
   'user.subscribed': {
     userId: string
-    channel: NotificationChannel
+    channel: Channel
   }
   'user.unsubscribed': {
     userId: string
-    channel: NotificationChannel
+    channel: Channel
   }
   'notification.sent': {
     notificationId: string
-    channel: NotificationChannel
+    channel: Channel
     success: boolean
   }
 }

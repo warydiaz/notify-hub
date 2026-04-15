@@ -12,6 +12,8 @@ import { statsRoutes } from './infrastructure/http/routes/stats.routes.js';
 import { connectMongo } from './infrastructure/persistence/mongo.js';
 import { LoggerSubscriber } from './infrastructure/events/subscribers/loggerSubscriber.js';
 import { EmailSubscriber } from './infrastructure/events/subscribers/emailSubscriber.js';
+import { AlertCreatedEmailHandler } from './infrastructure/events/handlers/alertCreatedEmailHandler.js';
+import { AlertResolvedEmailHandler } from './infrastructure/events/handlers/alertResolvedEmailHandler.js';
 import { WebSocketSubscriber } from './infrastructure/events/subscribers/webSocketSubscriber.js';
 import { MongoUserRepository } from './infrastructure/persistence/user/mongoUserRepository.js';
 import { MongoEventLogRepository } from './infrastructure/persistence/eventLog/mongoEventLogRepository.js';
@@ -48,7 +50,11 @@ const eventLogRepo = new MongoEventLogRepository();
 const wsManager = new WebSocketManager();
 
 new LoggerSubscriber(app.eventBus, eventLogRepo).register();
-new EmailSubscriber(app.eventBus, userRepo, emailSender).register();
+new EmailSubscriber(
+  app.eventBus,
+  new AlertCreatedEmailHandler(userRepo, emailSender, app.eventBus),
+  new AlertResolvedEmailHandler(userRepo, emailSender, app.eventBus),
+).register();
 new WebSocketSubscriber(app.eventBus, userRepo, wsManager).register();
 
 app.get('/health', { config: { public: true } }, async () => {

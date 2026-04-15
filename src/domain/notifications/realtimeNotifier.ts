@@ -1,4 +1,6 @@
-export interface RealtimeNotifier {
+import { NotificationChannel } from "./notificationChannel.js";
+
+export interface RealtimeNotifier extends NotificationChannel {
   isConnected(userId: string): boolean;
-  send(userId: string, data: unknown): void;
+  send(userId: string, data: unknown): Promise<boolean>;
 }

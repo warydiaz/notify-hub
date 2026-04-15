@@ -1,6 +1,7 @@
 import type { UserRepository } from '../../domain/user/userRepository.js';
 import type { PasswordHasher } from '../../domain/auth/passwordHasher.js';
 import type { User } from '../../domain/user/user.js';
+import { AuthError } from './error/index.js';
 
 export interface RegisterInput {
   email: string;
@@ -17,7 +18,7 @@ export class RegisterUseCase {
   async execute(input: RegisterInput): Promise<Omit<User, 'password'>> {
     const existing = await this.userRepo.findByEmail(input.email);
     if (existing) {
-      throw new Error('Email ya registrado');
+      throw AuthError.EmailAlreadyRegistered();
     }
 
     const hashed = await this.passwordHasher.hash(input.password);

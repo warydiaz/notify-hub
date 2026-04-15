@@ -9,11 +9,13 @@ export class WebSocketManager implements RealtimeNotifier {
     socket.on('close', () => this.connections.delete(userId));
   }
 
-  send(userId: string, data: unknown): void {
+  send(userId: string, data: unknown): Promise<boolean> {
     const socket = this.connections.get(userId);
     if (socket && socket.readyState === socket.OPEN) {
       socket.send(JSON.stringify(data));
+      return Promise.resolve(true);
     }
+    return Promise.resolve(false);
   }
 
   isConnected(userId: string): boolean {

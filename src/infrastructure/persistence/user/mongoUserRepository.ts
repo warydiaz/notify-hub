@@ -1,6 +1,7 @@
 import type { UserRepository } from '../../../domain/user/userRepository.js';
 import type { User, CreateUserInput } from '../../../domain/user/user.js';
 import { UserModel } from './userModel.js';
+import type { Channel } from '../../../domain/notifications/notificationChannel.js';
 
 export class MongoUserRepository implements UserRepository {
   private toUser(doc: any): User {
@@ -29,13 +30,12 @@ export class MongoUserRepository implements UserRepository {
     return doc ? this.toUser(doc) : null;
   }
 
-  async updateChannels(userId: string, channels: ('email' | 'ws')[]): Promise<User> {
+  async updateChannels(userId: string, channels: Channel[]): Promise<User> {
     const doc = await UserModel.findByIdAndUpdate(userId, { channels }, { new: true });
-    if (!doc) throw new Error('Usuario no encontrado');
     return this.toUser(doc);
   }
 
-  async findAllByChannel(channel: 'email' | 'ws'): Promise<User[]> {
+  async findAllByChannel(channel: Channel): Promise<User[]> {
     const docs = await UserModel.find({ channels: channel });
     return docs.map((doc) => this.toUser(doc));
   }

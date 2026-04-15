@@ -1,5 +1,7 @@
 import type { UserRepository } from '../../domain/user/userRepository.js';
 import type { EventBus } from '../../domain/events/eventBus.js';
+import { Channel } from '../../domain/notifications/notificationChannel.js';
+import { UserError } from './error/index.js';
 
 export class UnsubscribeChannelUseCase {
   constructor(
@@ -7,9 +9,9 @@ export class UnsubscribeChannelUseCase {
     private readonly eventBus: EventBus,
   ) {}
 
-  async execute(userId: string, channel: 'email' | 'ws'): Promise<('email' | 'ws')[]> {
+  async execute(userId: string, channel: Channel): Promise<Channel[]> {
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error('Usuario no encontrado');
+    if (!user) throw UserError.InvalidUser();
 
     const updated = await this.userRepo.updateChannels(
       userId,

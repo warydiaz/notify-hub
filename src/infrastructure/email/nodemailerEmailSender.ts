@@ -23,13 +23,13 @@ export class NodemailerEmailSender implements EmailSender {
     });
   }
 
-  async send(options: EmailOptions): Promise<boolean> {
+  async send(userId:string, data: EmailOptions): Promise<boolean> {
     try {
       await this.transporter.sendMail({
         from: this.config.emailFrom,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
+        to: data.to,
+        subject: data.subject,
+        html: data.html,
       });
       return true;
     } catch (err) {
