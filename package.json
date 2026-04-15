@@ -10,7 +10,7 @@
     "debug": "tsx watch --inspect src/main.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ángel Diaz Mendiburu",
   "license": "ISC",
   "type": "module",
   "dependencies": {
